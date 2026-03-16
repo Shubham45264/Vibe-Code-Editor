@@ -4,7 +4,8 @@ import {auth} from "@/auth";
 
 import {db} from "@/lib/db";
 
-export { getUserById, getAccountByUserId } from "./user";
+import { getUserById, getAccountByUserId } from "./user";
+export { getUserById, getAccountByUserId };
 
 
 export const currentUser = async()=>{

@@ -1,0 +1,26 @@
+Loaded Prisma config from prisma.config.ts.
+
+Prisma config detected, skipping environment variable loading.
+Prisma schema loaded from prisma\schema.prisma
+
+Error: Prisma schema validation - (validate wasm)
+Error code: P1012
+[1;91merror[0m: [1mError validating field `staredPlayground` in model `User`: The relation field `staredPlayground` on model `User` is missing an opposite relation field on the model `Playground`. Either run `prisma format` or add it manually.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:24[0m
+[1;94m   | [0m
+[1;94m23 | [0m  myPlayground Playground[]
+[1;94m24 | [0m  [1;91mstaredPlayground Playground[] @relation("staredPlayground")[0m
+[1;94m25 | [0m
+[1;94m   | [0m
+[1;91merror[0m: [1mError validating field `user` in model `StarMark`: The relation field `user` on model `StarMark` is missing an opposite relation field on the model `User`. Either run `prisma format` or add it manually.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:110[0m
+[1;94m   | [0m
+[1;94m109 | [0m
+[1;94m110 | [0m  [1;91muser User @relation(fields:[userId], references:[id], onDelete:Cascade)[0m
+[1;94m111 | [0m
+[1;94m   | [0m
+
+Validation Error Count: 2
+[Context: validate]
+
+Prisma CLI Version : 6.13.0
