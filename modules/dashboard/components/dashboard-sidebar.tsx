@@ -59,8 +59,8 @@ const lucideIconMap: Record<string, LucideIcon> = {
 
 export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundData: PlaygroundData[] }) {
   const pathname = usePathname()
-  const [starredPlaygrounds, setStarredPlaygrounds] = useState(initialPlaygroundData.filter((p) => p.starred))
-  const [recentPlaygrounds, setRecentPlaygrounds] = useState(initialPlaygroundData)
+  const starredPlaygrounds = initialPlaygroundData.filter((p) => p.starred)
+  const recentPlaygrounds = initialPlaygroundData
 
   return (
     <Sidebar variant="inset" collapsible="icon" className="border-1 border-r">
@@ -103,9 +103,8 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-
-              {starredPlaygrounds.length === 0 && recentPlaygrounds.length === 0 ? (
-                <div className="text-center text-muted-foreground py-4 w-full">Create your playground</div>
+              {starredPlaygrounds.length === 0 ? (
+                <div className="text-xs text-center text-muted-foreground py-4 w-full px-2">No starred projects</div>
               ) : (
                 starredPlaygrounds.map((playground) => {
                   const IconComponent = lucideIconMap[playground.icon] || Code2;
@@ -139,7 +138,9 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {starredPlaygrounds.length === 0 && recentPlaygrounds.length === 0 ? null : (
+              {recentPlaygrounds.length === 0 ? (
+                 <div className="text-xs text-center text-muted-foreground py-4 w-full px-2">No recent projects</div>
+              ) : (
                 recentPlaygrounds.map((playground) => {
                   const IconComponent = lucideIconMap[playground.icon] || Code2;
                   return (
@@ -160,8 +161,8 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
               )}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="View all">
-                  <Link href="/playgrounds">
-                    <span className="text-sm text-muted-foreground">View all playgrounds</span>
+                  <Link href="/dashboard" className="flex items-center justify-center w-full">
+                    <span className="text-xs text-muted-foreground hover:text-primary transition-colors">View all projects</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
