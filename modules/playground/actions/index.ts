@@ -1,17 +1,18 @@
 "use server"
 
-import {db} from "@/lib/db";
+import { db } from "@/lib/db";
 import { TemplateFolder } from "../lib/path-to-json";
 import { currentUser } from "@/modules/auth/actions";
 
-export const getPlaygroundById = async(id:string)=>{
+export const getPlaygroundById = async (id: string) => {
   try {
     const playground = await db.playground.findUnique({
-      where:{id},
-      select:{
-        templateFiles:{
-          select:{
-            content:true
+      where: { id },
+      select: {
+        title: true,
+        templateFiles: {
+          select: {
+            content: true
           }
         }
       }
@@ -22,27 +23,27 @@ export const getPlaygroundById = async(id:string)=>{
   }
 }
 
-export const saveUpdatedCode = async(playgroundId:string,data:TemplateFolder)=>{
+export const saveUpdatedCode = async (playgroundId: string, data: TemplateFolder) => {
   const user = await currentUser();
-  if(!user) return null;
+  if (!user) return null;
 
   try {
     const updatedPlayground = await db.templateFile.upsert({
-      where:{
-        id:playgroundId
+      where: {
+        id: playgroundId
       },
-      update:{
-        content:JSON.stringify(data)
+      update: {
+        content: JSON.stringify(data)
       },
-      create:{
+      create: {
         playgroundId,
-        content:JSON.stringify(data)
+        content: JSON.stringify(data)
       }
-      
+
     });
     return updatedPlayground;
   } catch (error) {
-    console.log("SaveUpdated Code Error:",error);
+    console.log("SaveUpdated Code Error:", error);
     return null;
   }
 }
