@@ -69,6 +69,7 @@ model Playground {
   starMarks     StarMark[]
   userId        String
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
   templateFiles TemplateFile[]
 }
 
@@ -104,3 +105,4 @@ model ChatMessage {
 
   @@index([userId])
 }
+
