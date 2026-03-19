@@ -13,6 +13,8 @@ import { Bot, FileText, Save, Settings, X } from "lucide-react";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import PlaygroundEditor from "@/modules/playground/components/playground-editor";
 
 
 const MainPlaygroundPage = () => {
@@ -41,6 +43,10 @@ const MainPlaygroundPage = () => {
     openFile(file);
   }
 
+
+  function handleContentChange(arg0: string, value: string): void {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <TooltipProvider>
@@ -189,7 +195,17 @@ const MainPlaygroundPage = () => {
 
                   </div>
                   <div className="flex-1">
-                    {activeFile?.content}
+                    <ResizablePanelGroup className="h-full">
+                      <ResizablePanel defaultSize={isPreviewVisible ? 50 : 100}>
+                        <PlaygroundEditor
+                          activeFile={activeFile}
+                          content={activeFile?.content || ""}
+                          onContentChange={() => { }}
+                        />
+
+                      </ResizablePanel>
+
+                    </ResizablePanelGroup>
 
                   </div>
                 </div>
