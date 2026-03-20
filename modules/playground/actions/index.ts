@@ -30,7 +30,7 @@ export const saveUpdatedCode = async (playgroundId: string, data: TemplateFolder
   try {
     const updatedPlayground = await db.templateFile.upsert({
       where: {
-        id: playgroundId
+        playgroundId: playgroundId
       },
       update: {
         content: JSON.stringify(data)

@@ -37,14 +37,18 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
       setPlaygroundData(data);
       const rawContent = data?.templateFiles?.[0]?.content;
 
-      if (typeof rawContent === "string") {
-        const parsedContent = JSON.parse(rawContent);
-        setTemplateData(parsedContent);
-        toast.success("Playground Loaded Successfully");
+      if (typeof rawContent === "string" && rawContent.trim()) {
+        try {
+          const parsedContent = JSON.parse(rawContent);
+          setTemplateData(parsedContent);
+          toast.success("Playground Loaded Successfully");
+          return; // Skip loading from template API if we have saved content
+        } catch (e) {
+          console.error("Failed to parse saved content", e);
+        }
       }
 
       // load template from api if not in saved content
-
       const res = await fetch(`/api/template/${id}`);
 
       if (!res.ok) throw new Error(`Failed to load Template: ${res.status}`);
@@ -75,6 +79,7 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
   const saveTemplateData = useCallback(async (data: TemplateFolder) => {
     try {
       await saveUpdatedCode(id, data);
+      setTemplateData(data);
       toast.success("Changes saved Successfully");
     } catch (error) {
       console.error("Error saving Template Data:", error);

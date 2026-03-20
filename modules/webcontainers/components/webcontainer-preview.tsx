@@ -7,8 +7,8 @@ import { Progress } from "@/components/ui/progress";
 
 import { WebContainer } from "@webcontainer/api";
 import { TemplateFolder } from "@/modules/playground/lib/path-to-json";
-import TerminalComponent from "./terminal";
-// import TerminalComponent from "./terminal";
+import dynamic from "next/dynamic";
+const TerminalComponent = dynamic(() => import("./terminal"), { ssr: false });
 
 interface WebContainerPreviewProps {
   templateData: TemplateFolder;
@@ -102,7 +102,7 @@ const WebContainerPreview = ({
             setLoadingState((prev) => ({ ...prev, starting: true }));
             return;
           }
-        } catch (error) {}
+        } catch (error) { }
 
         // Step-1 transform data
         setLoadingState((prev) => ({ ...prev, transforming: true }));
@@ -243,7 +243,7 @@ const WebContainerPreview = ({
   }, [instance, templateData, isSetupComplete, isSetupInProgress]);
 
   useEffect(() => {
-    return () => {};
+    return () => { };
   }, []);
 
   if (isLoading) {
@@ -290,13 +290,12 @@ const WebContainerPreview = ({
 
     return (
       <span
-        className={`text-sm font-medium ${
-          isComplete
+        className={`text-sm font-medium ${isComplete
             ? "text-green-600"
             : isActive
-            ? "text-blue-600"
-            : "text-gray-500"
-        }`}
+              ? "text-blue-600"
+              : "text-gray-500"
+          }`}
       >
         {label}
       </span>
