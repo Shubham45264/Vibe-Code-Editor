@@ -143,7 +143,7 @@ async function generateSuggestion(prompt: string): Promise<string> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "gpt-oss",
+        model: "codellama:latest",
         prompt,
         stream: false,
         options: {
