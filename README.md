@@ -27,6 +27,15 @@ Your personal co-pilot for coding, debugging, and review.
 
 ---
 
+## 📸 Screenshots
+
+| Dashboard | AI Chat | Code Editor (Playground) |
+| :---: | :---: | :---: |
+| ![Dashboard Placeholder](https://via.placeholder.com/600x400?text=Dashboard+Screenshot) | ![AI Chat Placeholder](https://via.placeholder.com/600x400?text=AI+Chat+Screenshot) | ![Playground Placeholder](https://via.placeholder.com/600x400?text=Playground+Screenshot) |
+
+
+---
+
 ## 🛠️ Tech Stack
 
 - **Framework**: [Next.js 15+](https://nextjs.org/) (App Router)
