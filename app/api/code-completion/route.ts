@@ -139,21 +139,23 @@ Generate suggestion:`;
 
 async function generateSuggestion(prompt: string): Promise<string> {
   try {
-    const response = await fetch("http://localhost:11434/api/generate", {
+    const response = await fetch("http://127.0.0.1:11434/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "codellama:latest",
+        model: "gpt-oss",
         prompt,
         stream: false,
-        option: {
+        options: {
           temperature: 0.7,
-          max_tokens: 300,
+          num_predict: 300,
         },
       }),
     });
 
     if (!response.ok) {
+      const errorData = await response.text();
+      console.error("Ollama error response:", errorData);
       throw new Error(`AI service error: ${response.statusText}`)
     }
 
