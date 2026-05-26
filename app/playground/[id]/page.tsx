@@ -26,8 +26,6 @@ import { PlaygroundEditor } from "@/modules/playground/components/playground-edi
 import { TemplateFileTree } from "@/modules/playground/components/playground-explorer";
 import ToggleAI from "@/modules/playground/components/toggle-ai";
 import { useAISuggestions } from "@/modules/playground/hooks/useAiSuggestion";
-// import ToggleAI from "@/modules/playground/components/toggle-ai";
-// import { useAISuggestions } from "@/modules/playground/hooks/useAISuggestion";
 import { useFileExplorer } from "@/modules/playground/hooks/useFileExplorer";
 import { usePlayground } from "@/modules/playground/hooks/usePlayground";
 import { findFilePath } from "@/modules/playground/lib";
@@ -39,7 +37,6 @@ import WebContainerPreview from "@/modules/webcontainers/components/webcontainer
 import { useWebContainer } from "@/modules/webcontainers/hooks/useWebContainer";
 import {
   AlertCircle,
-  Bot,
   FileText,
   FolderOpen,
   Save,
@@ -47,10 +44,10 @@ import {
   X,
 } from "lucide-react";
 import { useParams } from "next/navigation";
+import type { editor as MonacoEditor } from "monaco-editor";
 import React, {
   useCallback,
   useEffect,
-  useReducer,
   useRef,
   useState,
 } from "react";
@@ -91,7 +88,7 @@ const MainPlaygroundPage = () => {
     error: containerError,
     instance,
     writeFileSync,
-    // @ts-ignore
+    // @ts-expect-error WebContainer type mismatch
   } = useWebContainer({ templateData });
 
   const lastSyncedContent = useRef<Map<string, string>>(new Map());
@@ -203,9 +200,8 @@ const MainPlaygroundPage = () => {
           JSON.stringify(latestTemplateData)
         );
 
-        // @ts-ignore
-        const updateFileContent = (items: any[]) =>
-          // @ts-ignore
+        type TreeItem = TemplateFile | TemplateFolder;
+        const updateFileContent = (items: TreeItem[]): TreeItem[] =>
           items.map((item) => {
             if ("folderName" in item) {
               return { ...item, items: updateFileContent(item.items) };
@@ -505,11 +501,9 @@ const MainPlaygroundPage = () => {
                         suggestion={aiSuggestions.suggestion}
                         suggestionLoading={aiSuggestions.isLoading}
                         suggestionPosition={aiSuggestions.position}
-                        onAcceptSuggestion={(editor: any, monaco: any) => aiSuggestions.acceptSuggestion(editor, monaco)}
-
-                        onRejectSuggestion={(editor: any) => aiSuggestions.rejectSuggestion(editor)}
-
-                        onTriggerSuggestion={(type: string, editor: any) => aiSuggestions.fetchSuggestion(type, editor)}
+                        onAcceptSuggestion={(editorInstance: MonacoEditor.IStandaloneCodeEditor, monaco: unknown) => aiSuggestions.acceptSuggestion(editorInstance, monaco)}
+                        onRejectSuggestion={(editorInstance: MonacoEditor.IStandaloneCodeEditor) => aiSuggestions.rejectSuggestion(editorInstance)}
+                        onTriggerSuggestion={(type: string, editorInstance: MonacoEditor.IStandaloneCodeEditor) => aiSuggestions.fetchSuggestion(type, editorInstance)}
                       />
                     </ResizablePanel>
 
