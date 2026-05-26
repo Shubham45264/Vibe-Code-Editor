@@ -2,17 +2,22 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getAllPlaygroundForUser } from "@/modules/dashboard/actions";
 import { DashboardSidebar } from "@/modules/dashboard/components/dashboard-sidebar";
+import React from "react";
+
+interface PlaygroundItem {
+  id: string;
+  title: string;
+  starMarks?: { isMarked: boolean }[];
+  template: string;
+}
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
   const playgroundData = await getAllPlaygroundForUser();
-
   console.log("playgroundData", playgroundData);
-
   const technologyIconMap: Record<string, string> = {
     REACT: "Zap",
     NEXTJS: "Lightbulb",
@@ -21,21 +26,18 @@ export default async function DashboardLayout({
     HONO: "FlameIcon",
     ANGULAR: "Terminal",
   }
-
-  const formattedPlaygroundData = playgroundData?.map((item: any) => ({
+  const formattedPlaygroundData = playgroundData?.map((item: PlaygroundItem) => ({
     id: item.id,
     name: item.title,
     starred: item.starMarks?.[0]?.isMarked || false,
     icon: technologyIconMap[item.template] || "Code2"
   })) || []
-
-
   return (
     <TooltipProvider>
       <SidebarProvider>
         <div className="flex min-h-screen w-full overflow-x-hidden">
           {/* Dashboard Sidebar */}
-          {/* @ts-ignore */}
+          {/* @ts-expect-error Server Component */}
           <DashboardSidebar initialPlaygroundData={formattedPlaygroundData} />
           <main className="flex-1">{children}</main>
         </div>
@@ -43,4 +45,3 @@ export default async function DashboardLayout({
     </TooltipProvider>
   )
 }
-
