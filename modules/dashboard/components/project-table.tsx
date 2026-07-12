@@ -42,11 +42,10 @@ import { toast } from "sonner"
 import { MarkedToggleButton } from "./marked-toggle"
 
 
+import { deleteProjectById, duplicateProjectById, editProjectById } from "@/modules/dashboard/actions"
+
 interface ProjectTableProps {
   projects: Project[]
-  onUpdateProject?: (id: string, data: { title: string; description: string }) => Promise<void>
-  onDeleteProject?: (id: string) => Promise<void>
-  onDuplicateProject?: (id: string) => Promise<void>
   onMarkasFavorite?: (id: string) => Promise<void>
 }
 
@@ -57,9 +56,6 @@ interface EditProjectData {
 
 export default function ProjectTable({
   projects,
-  onUpdateProject,
-  onDeleteProject,
-  onDuplicateProject,
   onMarkasFavorite,
 }: ProjectTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -81,11 +77,11 @@ export default function ProjectTable({
   }
 
   const handleUpdateProject = async () => {
-    if (!selectedProject || !onUpdateProject) return;
-    setEditDialogOpen(true);
+    if (!selectedProject) return;
+    setIsLoading(true);
 
     try {
-      await onUpdateProject(selectedProject.id, editData);
+      await editProjectById(selectedProject.id, editData);
       setEditDialogOpen(false);
       toast.success("Project updated successfully")
     } catch (error) {
@@ -102,11 +98,11 @@ export default function ProjectTable({
   }
 
   const handleDeleteProject = async () => {
-    if (!selectedProject || !onDeleteProject) return;
-    setDeleteDialogOpen(true);
+    if (!selectedProject) return;
+    setIsLoading(true);
 
     try {
-      await onDeleteProject(selectedProject.id);
+      await deleteProjectById(selectedProject.id);
       setDeleteDialogOpen(false);
       setSelectedProject(null);
       toast.success("Project deleted successfully")
@@ -120,11 +116,10 @@ export default function ProjectTable({
   }
 
   const handleDuplicateProject = async (project: Project) => {
-    if (!onDuplicateProject) return;
-    setEditDialogOpen(true);
+    setIsLoading(true);
 
     try {
-      await onDuplicateProject(project.id);
+      await duplicateProjectById(project.id);
       toast.success("Project duplicated successfully")
     } catch (error) {
       toast.error("Failed to duplicate project")
