@@ -5,6 +5,7 @@ import { db } from "./lib/db";
 import { getUserById } from "./modules/auth/actions/user";
 
 export const {handlers,signIn,signOut,auth} = NextAuth({
+  trustHost: true,
   callbacks:{
     async signIn({user, account}){
       if (!user.email || !account) return false;
@@ -92,7 +93,7 @@ export const {handlers,signIn,signOut,auth} = NextAuth({
     signIn: "/auth/signin",
   },
   session: { strategy: "jwt" },
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "c83daddad499008bac179cee7c4195592f18d36b41974030ae7e27b8ab9ae1ab",
   adapter: PrismaAdapter(db),
   ...authConfig
 });
