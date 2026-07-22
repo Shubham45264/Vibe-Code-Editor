@@ -1,5 +1,6 @@
 export const publicRoutes:string[] = [
   "/",
+  "/auth/signin",
 ]
 
 export const protectedRoutes:string[] = [
