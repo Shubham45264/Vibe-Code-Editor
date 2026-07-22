@@ -40,10 +40,12 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
   }
 
   try {
-    const inputPath = path.join(process.cwd(),templatePath);
-   const outputFile = path.join(process.cwd(),`output/${templateKey}.json`);
+    const inputPath = path.join(process.cwd(), templatePath);
+    const outputDir = path.join(process.cwd(), "output");
+    await fs.mkdir(outputDir, { recursive: true });
+    const outputFile = path.join(outputDir, `${templateKey}.json`);
 
-   await saveTemplateStructureToJson(inputPath,outputFile);
+    await saveTemplateStructureToJson(inputPath, outputFile);
 
    const result = await readTemplateStructureFromJson(outputFile);
 

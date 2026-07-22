@@ -346,7 +346,10 @@ export const PlaygroundEditor = ({
 
     // CRITICAL: Override Tab key with high priority and prevent default Monaco behavior
     if (tabCommandRef.current) {
-      tabCommandRef.current.dispose()
+      if (typeof tabCommandRef.current?.dispose === "function") {
+        tabCommandRef.current.dispose()
+      }
+      tabCommandRef.current = null
     }
 
     tabCommandRef.current = editor.addCommand(
@@ -513,7 +516,9 @@ export const PlaygroundEditor = ({
         inlineCompletionProviderRef.current = null
       }
       if (tabCommandRef.current) {
-        tabCommandRef.current.dispose()
+        if (typeof tabCommandRef.current?.dispose === "function") {
+          tabCommandRef.current.dispose()
+        }
         tabCommandRef.current = null
       }
     }

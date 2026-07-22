@@ -51,7 +51,10 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
       // load template from api if not in saved content
       const res = await fetch(`/api/template/${id}`);
 
-      if (!res.ok) throw new Error(`Failed to load Template: ${res.status}`);
+      if (!res.ok) {
+        const errorJson = await res.json().catch(() => ({}));
+        throw new Error(errorJson.error || `Failed to load Template: ${res.status}`);
+      }
       const templateRes = await res.json();
       if (templateRes.templateJson && Array.isArray(templateRes.templateJson)) {
         setTemplateData({
@@ -68,7 +71,9 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
 
     } catch (error) {
       console.error("Failed to load playground", error);
-      setError("Failed to load playground");
+      const msg = error instanceof Error ? error.message : "Failed to load playground";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

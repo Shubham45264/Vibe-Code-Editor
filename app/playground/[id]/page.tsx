@@ -37,12 +37,14 @@ import WebContainerPreview from "@/modules/webcontainers/components/webcontainer
 import { useWebContainer } from "@/modules/webcontainers/hooks/useWebContainer";
 import {
   AlertCircle,
+  ArrowLeft,
   FileText,
   FolderOpen,
   Save,
   Settings,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { editor as MonacoEditor } from "monaco-editor";
 import React, {
@@ -365,6 +367,13 @@ const MainPlaygroundPage = () => {
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Link href="/dashboard">
+              <Button size="sm" variant="outline" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Button>
+            </Link>
             <Separator orientation="vertical" className="mr-2 h-4" />
 
             <div className="flex flex-1 items-center gap-2">

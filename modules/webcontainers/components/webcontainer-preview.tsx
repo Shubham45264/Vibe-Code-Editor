@@ -69,113 +69,91 @@ const WebContainerPreview = ({
         setIsSetupInProgress(true);
         setSetupError(null);
 
+        // Check if node_modules already exists to avoid redundant npm install
+        let hasNodeModules = false;
         try {
-          const packageJsonExists = await instance.fs.readFile(
-            "package.json",
-            "utf8"
-          );
+          await instance.fs.readdir("node_modules");
+          hasNodeModules = true;
+        } catch (error) {}
 
-          if (packageJsonExists) {
-            // Files are already mounted, just reconnect to existing server
-            if (terminalRef.current?.writeToTerminal) {
-              terminalRef.current.writeToTerminal(
-                "🔄 Reconnecting to existing WebContainer session...\r\n"
-              );
-            }
-
-            instance.on("server-ready", (port: number, url: string) => {
-              if (terminalRef.current?.writeToTerminal) {
-                terminalRef.current.writeToTerminal(
-                  `🌐 Reconnected to server at ${url}\r\n`
-                );
-              }
-
-              setPreviewUrl(url);
-              setLoadingState((prev) => ({
-                ...prev,
-                starting: false,
-                ready: true,
-              }));
-            });
-
-            setCurrentStep(4);
-            setLoadingState((prev) => ({ ...prev, starting: true }));
-            return;
+        if (!hasNodeModules) {
+          // Step-1 transform data
+          setLoadingState((prev) => ({ ...prev, transforming: true }));
+          setCurrentStep(1);
+          if (terminalRef.current?.writeToTerminal) {
+            terminalRef.current.writeToTerminal(
+              "🔄 Transforming template data...\r\n"
+            );
           }
-        } catch (error) { }
 
-        // Step-1 transform data
-        setLoadingState((prev) => ({ ...prev, transforming: true }));
-        setCurrentStep(1);
-        // Write to terminal
-        if (terminalRef.current?.writeToTerminal) {
-          terminalRef.current.writeToTerminal(
-            "🔄 Transforming template data...\r\n"
+          // @ts-ignore
+          const files = transformToWebContainerFormat(templateData);
+          setLoadingState((prev) => ({
+            ...prev,
+            transforming: false,
+            mounting: true,
+          }));
+          setCurrentStep(2);
+
+          // Step-2 Mount Files
+          if (terminalRef.current?.writeToTerminal) {
+            terminalRef.current.writeToTerminal(
+              "📁 Mounting files to WebContainer...\r\n"
+            );
+          }
+          await instance.mount(files);
+
+          if (terminalRef.current?.writeToTerminal) {
+            terminalRef.current.writeToTerminal(
+              "✅ Files mounted successfully\r\n"
+            );
+          }
+          setLoadingState((prev) => ({
+            ...prev,
+            mounting: false,
+            installing: true,
+          }));
+          setCurrentStep(3);
+
+          // Step-3 Install dependencies
+          if (terminalRef.current?.writeToTerminal) {
+            terminalRef.current.writeToTerminal(
+              "📦 Installing dependencies...\r\n"
+            );
+          }
+
+          const installProcess = await instance.spawn("npm", [
+            "install",
+            "--no-package-lock",
+            "--no-audit",
+            "--no-fund",
+            "--legacy-peer-deps",
+            "--prefer-offline"
+          ]);
+
+          installProcess.output.pipeTo(
+            new WritableStream({
+              write(data) {
+                if (terminalRef.current?.writeToTerminal) {
+                  terminalRef.current.writeToTerminal(data);
+                }
+              },
+            })
           );
-        }
 
-        // @ts-ignore
-        const files = transformToWebContainerFormat(templateData);
-        setLoadingState((prev) => ({
-          ...prev,
-          transforming: false,
-          mounting: true,
-        }));
-        setCurrentStep(2);
+          const installExitCode = await installProcess.exit;
 
-        //  Step-2 Mount Files
+          if (installExitCode !== 0) {
+            throw new Error(
+              `Failed to install dependencies. Exit code: ${installExitCode}`
+            );
+          }
 
-        if (terminalRef.current?.writeToTerminal) {
-          terminalRef.current.writeToTerminal(
-            "📁 Mounting files to WebContainer...\r\n"
-          );
-        }
-        await instance.mount(files);
-
-        if (terminalRef.current?.writeToTerminal) {
-          terminalRef.current.writeToTerminal(
-            "✅ Files mounted successfully\r\n"
-          );
-        }
-        setLoadingState((prev) => ({
-          ...prev,
-          mounting: false,
-          installing: true,
-        }));
-        setCurrentStep(3);
-
-        // Step-3 Install dependencies
-
-        if (terminalRef.current?.writeToTerminal) {
-          terminalRef.current.writeToTerminal(
-            "📦 Installing dependencies...\r\n"
-          );
-        }
-
-        const installProcess = await instance.spawn("npm", ["install"]);
-
-        installProcess.output.pipeTo(
-          new WritableStream({
-            write(data) {
-              if (terminalRef.current?.writeToTerminal) {
-                terminalRef.current.writeToTerminal(data);
-              }
-            },
-          })
-        );
-
-        const installExitCode = await installProcess.exit;
-
-        if (installExitCode !== 0) {
-          throw new Error(
-            `Failed to install dependencies. Exit code: ${installExitCode}`
-          );
-        }
-
-        if (terminalRef.current?.writeToTerminal) {
-          terminalRef.current.writeToTerminal(
-            "✅ Dependencies installed successfully\r\n"
-          );
+          if (terminalRef.current?.writeToTerminal) {
+            terminalRef.current.writeToTerminal(
+              "✅ Dependencies installed successfully\r\n"
+            );
+          }
         }
 
         setLoadingState((prev) => ({
@@ -193,7 +171,24 @@ const WebContainerPreview = ({
           );
         }
 
-        const startProcess = await instance.spawn("npm", ["run", "start"]);
+        let startCommand = "start";
+        try {
+          const pkgStr = await instance.fs.readFile("package.json", "utf8");
+          const pkg = JSON.parse(pkgStr);
+          if (pkg.scripts) {
+            if (pkg.scripts.dev) {
+              startCommand = "dev";
+            } else if (pkg.scripts.start) {
+              startCommand = "start";
+            } else if (pkg.scripts.serve) {
+              startCommand = "serve";
+            }
+          }
+        } catch (e) {
+          console.error("Could not parse package.json for start script:", e);
+        }
+
+        const startProcess = await instance.spawn("npm", ["run", startCommand]);
 
         instance.on("server-ready", (port: number, url: string) => {
           if (terminalRef.current?.writeToTerminal) {

@@ -15,6 +15,18 @@ interface UseWebContainerReturn {
   destroy: () => void;
 }
 
+let webContainerPromise: Promise<WebContainer> | null = null;
+
+async function getWebContainerInstance(): Promise<WebContainer> {
+  if (!webContainerPromise) {
+    webContainerPromise = WebContainer.boot().catch((err) => {
+      webContainerPromise = null;
+      throw err;
+    });
+  }
+  return webContainerPromise;
+}
+
 export function useWebContainer({ templateData }: UseWebContainerProps): UseWebContainerReturn {
   const [instance, setInstance] = useState<WebContainer | null>(null);
   const [serverUrl, setServerUrl] = useState<string | null>(null);
@@ -25,7 +37,7 @@ export function useWebContainer({ templateData }: UseWebContainerProps): UseWebC
     let mounted = true;
     async function initializeWebContainer() {
       try {
-        const webContainerInstance = await WebContainer.boot();
+        const webContainerInstance = await getWebContainerInstance();
 
         if (!mounted) {
           return;
@@ -34,7 +46,7 @@ export function useWebContainer({ templateData }: UseWebContainerProps): UseWebC
         setIsLoading(false);
 
       } catch (error) {
-        console.error('Failed to intialize Web Container', error);
+        console.error('Failed to initialize Web Container', error);
         if (mounted) {
           setError(error instanceof Error ? error.message : "Failed to start WebContainer");
           setIsLoading(false);
@@ -46,9 +58,6 @@ export function useWebContainer({ templateData }: UseWebContainerProps): UseWebC
 
     return () => {
       mounted = false;
-      if (instance) {
-        instance.teardown();
-      }
     };
   }, []);
 
